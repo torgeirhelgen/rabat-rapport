@@ -102,7 +102,12 @@ export class Globus {
 
     this.monster = this.lagMonster();
     this.storrelse();
-    window.addEventListener("resize", () => this.storrelse());
+    this.uthevStart = {};
+    this.uthevMål = {};
+    window.addEventListener("resize", () => {
+      this.storrelse();
+      this.skitten = true;
+    });
     matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => {
       this.farger = lesFarger();
       this.monster = this.lagMonster();
@@ -152,6 +157,7 @@ export class Globus {
   settVisning(visning, { umiddelbar = false } = {}) {
     const forrige = this.visning;
     this.visning = visning;
+    this.skitten = true;
     const mål = { fokus: visning.fokus, skala: visning.skala, anker: visning.anker };
     if (!this.kamera || umiddelbar || this.redusert) {
       this.kamera = { ...mål };
@@ -159,6 +165,13 @@ export class Globus {
       return;
     }
     if (forrige && forrige.id === visning.id) return;
+    // Samme kamera som vi allerede er på vei til: bare lagene endres, kartet står stille.
+    const nåMål = this.overgang ? this.overgang.mål : this.kamera;
+    const likt = (a, b) => Math.abs(a - b) < 1e-6;
+    if (
+      likt(nåMål.skala, mål.skala) && likt(nåMål.fokus[0], mål.fokus[0]) && likt(nåMål.fokus[1], mål.fokus[1]) &&
+      likt(nåMål.anker[0], mål.anker[0]) && likt(nåMål.anker[1], mål.anker[1]) && !visning.roter && !forrige?.roter
+    ) return;
     const fra = { ...this.kamera, fokus: this.naavaerendeFokus() };
     this.svingFase = 0;
     const zoomForhold = Math.abs(Math.log(mål.skala / fra.skala));
@@ -209,16 +222,34 @@ export class Globus {
   // Tonene for lag og uthevinger følger visningen mykt.
   oppdaterAlfa(dt) {
     const v = this.visning;
+    let endret = false;
     const mål = (sett, nøkkel, på) => {
       const a = sett[nøkkel] ?? 0;
       const b = på ? 1 : 0;
-      sett[nøkkel] = this.redusert ? b : a + (b - a) * Math.min(1, dt * 4);
+      const ny = this.redusert || Math.abs(b - a) < 0.002 ? b : a + (b - a) * Math.min(1, dt * 4);
+      if (ny !== a) endret = true;
+      sett[nøkkel] = ny;
     };
     for (const l of ["buer", "sentre", "klubbyer", "lokalt", "anlegg"]) mål(this.lagAlfa, l, v.lag.includes(l));
     const uthev = new Set([...v.uthev, ...this.ekstraUthev]);
     const alle = [...SENTRE.map((s) => s.id), ...Object.keys(ANLEGG), ...KLUBBYER.map((k) => k.id)];
-    for (const id of alle) mål(this.uthevAlfa, id, uthev.has(id) || this.hover === id);
+    for (const id of alle) {
+      const på = uthev.has(id) || this.hover === id;
+      // Pulsringen går noen få ganger når noe blir uthevet, og stopper så.
+      if (på && !this.uthevMål[id]) this.uthevStart[id] = this.tid;
+      this.uthevMål[id] = på;
+      mål(this.uthevAlfa, id, på);
+    }
     this.harUthev = uthev.size > 0 || !!this.hover;
+    return endret;
+  }
+
+  // 1 rett etter utheving, tones ned til 0 i løpet av noen sekunder.
+  pulsLiv(id) {
+    if (this.redusert) return 0;
+    const liv = Math.max(0, 1 - (this.tid - (this.uthevStart[id] ?? -99)) / 4.2);
+    if (liv > 0) this.pulsAktiv = true;
+    return liv;
   }
 
   lagProjeksjon() {
@@ -251,14 +282,21 @@ export class Globus {
     return { proj, R, cx, cy, v, ost, nord, punkt, pxPerGrad: R * RAD };
   }
 
+  // Tegner bare når noe faktisk endrer seg: overgang, rotasjon, partikler,
+  // inn- og uttoning eller pulsringer. Ellers står kartet stille og bruker ingen kraft.
   tegnLoop(naa) {
     const dt = Math.min(0.1, (naa - this.sistTid) / 1000);
     this.sistTid = naa;
     this.tid += dt;
     if (this.visning && !document.hidden) {
       this.oppdaterKamera(naa, dt);
-      this.oppdaterAlfa(dt);
-      this.tegn();
+      const alfaEndret = this.oppdaterAlfa(dt);
+      const iBevegelse = this.overgang || this.svingAmplitude > 0.001 || (this.lagAlfa.buer > 0.01 && !this.redusert);
+      if (iBevegelse || alfaEndret || this.pulsAktiv || this.skitten) {
+        this.skitten = false;
+        this.pulsAktiv = false;
+        this.tegn();
+      }
     }
     requestAnimationFrame(this.tegnLoop);
   }
@@ -540,10 +578,11 @@ export class Globus {
       ctx.stroke();
       ctx.setLineDash([]);
       // Pulsring rundt valgt anlegg.
-      if (u > 0.05 && !this.redusert) {
+      const livA = u > 0.05 ? this.pulsLiv(id) : 0;
+      if (livA > 0) {
         const puls = (this.tid * 0.5) % 1;
         const r0 = (a.radiusMeter / 6371000) * P.R;
-        ctx.globalAlpha = alfa * u * (1 - puls) * 0.8;
+        ctx.globalAlpha = alfa * u * livA * (1 - puls) * 0.8;
         ctx.beginPath();
         ctx.arc(sentrum.x, sentrum.y, r0 * (1 + puls * 0.9), 0, Math.PI * 2);
         ctx.stroke();
@@ -593,9 +632,10 @@ export class Globus {
         ctx.strokeStyle = F.gull;
         ctx.stroke();
       }
-      if (u > 0.05 && !this.redusert) {
-        const puls = (this.tid * 0.6 + s.koord[0] * 0.1) % 1;
-        ctx.globalAlpha = alfa * u * (1 - puls) * 0.7;
+      const livS = u > 0.05 ? this.pulsLiv(s.id) : 0;
+      if (livS > 0) {
+        const puls = (this.tid * 0.6) % 1;
+        ctx.globalAlpha = alfa * u * livS * (1 - puls) * 0.7;
         ctx.beginPath();
         ctx.arc(p.x, p.y, 8 + puls * 18, 0, Math.PI * 2);
         ctx.strokeStyle = F.gull;

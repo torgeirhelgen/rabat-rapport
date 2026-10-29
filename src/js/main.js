@@ -101,7 +101,7 @@ function botolaTabell() {
         <tbody>${TABELL.map(
           (r) => `<tr tabindex="0" data-by="${r.by}" class="${r.pos === 1 ? "er-mester" : ""} ${r.merknad?.startsWith("Nedrykk") ? "er-nedrykk" : ""}">
             <td class="tall">${r.pos}</td>
-            <th scope="row">${r.klubb}${r.merknad ? `<span class="merknad">${r.merknad}</span>` : ""}</th>
+            <th scope="row">${r.klubb}${r.merknad ? `<span class="sr-only"> (${r.merknad.toLowerCase()})</span>` : ""}</th>
             <td>${r.by}</td>
             <td class="tall">${r.poeng}</td>
           </tr>`
@@ -164,7 +164,7 @@ function forhandsvis(id) {
   forhandsvisning = setTimeout(() => {
     if (aktivVisning !== "oversikt") return;
     globus.settVisning(hentVisning(id || "oversikt", mobilMQ.matches));
-  }, id ? 120 : 250);
+  }, id ? 260 : 300);
 }
 toc.addEventListener("pointerover", (e) => {
   const a = e.target.closest("[data-forhandsvis]");
@@ -207,7 +207,7 @@ window.addEventListener("pointermove", (e) => {
   if (e.pointerType === "touch") return;
   const r = canvas.getBoundingClientRect();
   const over = document.elementFromPoint(e.clientX, e.clientY);
-  const fritt = over === canvas || over?.classList?.contains("kart-slipp");
+  const fritt = over === canvas;
   const t = fritt ? globus.finnTreff(e.clientX - r.left, e.clientY - r.top) : null;
   globus.settHover(t?.id || null);
   document.body.classList.toggle("peker-paa-kart", !!t);
@@ -256,10 +256,18 @@ addEventListener(
 );
 
 // Den røde forsiden tones ut mens man scroller ned mot innholdsfortegnelsen.
+// Over første kapittel styres kartet av scrollposisjonen: helt øverst forsiden,
+// og så snart man begynner å scrolle, oversikten over Marokko.
+const forsteKapittel = document.querySelector(".kapittel-hode");
 function oppdaterForside() {
-  const andel = Math.min(1, Math.max(0, 1 - scrollY / (innerHeight * 0.75)));
+  const andel = Math.min(1, Math.max(0, 1 - scrollY / (innerHeight * 0.6)));
   document.documentElement.style.setProperty("--forside", andel.toFixed(3));
   document.body.classList.toggle("paa-forside", andel > 0.35);
+  const overKapitlene = forsteKapittel.getBoundingClientRect().top > innerHeight * 0.45;
+  if (overKapitlene) {
+    const id = scrollY < innerHeight * 0.12 ? "hero" : "oversikt";
+    if (id !== aktivVisning) visKart(id);
+  }
 }
 oppdaterForside();
 

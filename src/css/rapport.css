@@ -177,7 +177,7 @@ body.paa-forside .topplinje { transform: translateY(-100%); opacity: 0; }
 
 .kart { position: fixed; inset: 0; z-index: 0; }
 .kart canvas { display: block; width: 100%; height: 100%; }
-.kart-slipp { display: none; }
+.kart-forside { display: none; }
 .slør {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(90deg,
@@ -222,7 +222,7 @@ main > *, .kapittel > * { pointer-events: auto; }
 /* Forside */
 .forside {
   position: relative;
-  min-height: 100svh;
+  min-height: 88svh;
   display: flex; flex-direction: column; align-items: center;
   padding: 13vh 1.25rem 0;
   text-align: center;
@@ -231,6 +231,7 @@ main > *, .kapittel > * { pointer-events: auto; }
   pointer-events: none;
 }
 .forside-innhold { display: flex; flex-direction: column; align-items: center; pointer-events: auto; }
+.forside .arabisk-band { align-self: stretch; margin-inline: -1.25rem; }
 .flaggstjerne {
   width: clamp(3.5rem, 6vw, 5.25rem); height: auto; margin-bottom: 1.5rem;
   filter: drop-shadow(0 2px 6px rgba(60, 0, 0, 0.35));
@@ -254,7 +255,7 @@ main > *, .kapittel > * { pointer-events: auto; }
 
 /* Arabisk tekstbånd fra skissen, svakt og i langsom bevegelse. */
 .arabisk-band {
-  position: absolute; inset: auto 0 calc(25svh + 1rem) 0;
+  margin-top: 1.75rem;
   overflow: hidden; pointer-events: none;
   font-family: var(--font-display);
   font-size: clamp(1.4rem, 2.6vw, 2.25rem);
@@ -280,7 +281,7 @@ main > *, .kapittel > * { pointer-events: auto; }
 
 /* Innholdsfortegnelse: å holde over et kapittel viser kapittelets kart. */
 .oversikt {
-  padding: 24vh 1.25rem 20vh var(--kol-start);
+  padding: 6vh 1.25rem 16vh var(--kol-start);
   max-width: calc(var(--kol-start) + var(--kol-bredde) + 1.25rem);
 }
 .oversikt-tittel {
@@ -295,13 +296,16 @@ main > *, .kapittel > * { pointer-events: auto; }
   padding: 1.25rem 0; text-decoration: none; color: var(--text);
 }
 .toc .stjerne { grid-row: span 2; align-self: start; width: 2.25rem; height: 2.25rem; margin-top: 0.15rem; }
-.toc-tittel {
-  font-family: var(--font-display); font-size: clamp(1.5rem, 2.2vw, 1.875rem); line-height: 1.15;
-  transition: transform 0.3s var(--ease);
-}
+.toc .stjerne path { stroke: var(--text); }
+.toc-tittel { font-family: var(--font-display); font-size: clamp(1.5rem, 2.2vw, 1.875rem); line-height: 1.15; }
 .toc-ingress { color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.5; }
-.toc a:hover .stjerne path, .toc a:focus-visible .stjerne path { fill: var(--flagg-gronn); stroke: var(--accent); }
-.toc a:hover .toc-tittel, .toc a:focus-visible .toc-tittel { transform: translateX(0.35rem); }
+/* Valgt kapittel: diskret zoom, stjerne og tittel blir gull. */
+.toc a { transform-origin: 0 50%; transition: transform 0.3s var(--ease); }
+.toc-tittel { transition: color 0.3s var(--ease); }
+.toc a:hover, .toc a:focus-visible { transform: scale(1.025); }
+.toc a:hover .toc-tittel, .toc a:focus-visible .toc-tittel { color: var(--gold); }
+.toc a:hover .stjerne path, .toc a:focus-visible .stjerne path { stroke: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .toc a:hover, .toc a:focus-visible { transform: none; } }
 
 .kapittel { padding: 34vh 0 18vh; }
 .kapittel > * {
@@ -383,8 +387,6 @@ main > *, .kapittel > * { pointer-events: auto; }
 .botola tr.er-mester td:first-child { color: var(--gold); font-weight: 700; }
 .botola tr.er-nedrykk { color: var(--text-secondary); }
 .botola tr.er-nedrykk:first-of-type, .botola tr:not(.er-nedrykk) + tr.er-nedrykk td, .botola tr:not(.er-nedrykk) + tr.er-nedrykk th { border-top: 1px dashed rgba(247, 241, 232, 0.35); }
-.merknad { display: block; color: var(--text-tertiary); font-size: 0.75rem; font-weight: 500; }
-.er-mester .merknad { color: var(--gold); }
 .botola .kilde { margin: 0.9rem 0 0; font-size: 0.8125rem; line-height: 1.45; color: var(--text-tertiary); }
 
 /* Kilder */
@@ -480,23 +482,26 @@ main > *, .kapittel > * { pointer-events: auto; }
   .slør { display: none; }
   main { pointer-events: auto; padding-top: calc(var(--topp) + var(--kart-hoyde)); }
   .kapittel, #kapitler, .forside { pointer-events: auto; }
-  /* Forsiden dekker hele skjermen over kartbåndet, som et eget omslag. */
-  main { z-index: auto; position: static; }
-  .forside-flate { display: none; }
-  .forside {
-    position: relative; z-index: 6;
-    margin-top: calc(-1 * (var(--topp) + var(--kart-hoyde)));
-    padding-top: 20svh;
+  /* På forsiden er kartbåndet gjennomsiktig, så globusen står på den røde flaten.
+     Når man scroller, tones den røde flaten ut og globusen blir værende øverst. */
+  .kart { overflow: hidden; }
+  .kart-forside {
+    display: block; position: absolute; z-index: -1; inset: calc(-1 * var(--topp)) 0 auto 0; height: 100svh;
     background: radial-gradient(circle at 0 0, var(--rod-lys) 0%, var(--rod) 30%, var(--rod-dyp) 100%);
+    opacity: var(--forside, 1);
   }
-  .forside::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background-image: var(--zellige); background-size: 56px 56px; opacity: 0.2;
-    -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 50%);
-    mask-image: linear-gradient(to top, #000 0%, transparent 50%);
+  .kart canvas { position: relative; }
+  .kart::after { opacity: calc(1 - var(--forside, 1)); }
+  .forside-flate { z-index: 3; }
+  main { z-index: 4; }
+  .forside-flate::after {
+    -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 45%);
+    mask-image: linear-gradient(to top, #000 0%, transparent 45%);
   }
-  .arabisk-band { inset-block-end: 22svh; }
-  .oversikt { padding: 3rem 1.25rem 2rem; }
+  .forside { min-height: calc(100svh - var(--topp) - var(--kart-hoyde)); padding-top: 1.75rem; }
+  .flaggstjerne { width: 2.75rem; margin-bottom: 0.75rem; }
+  .scroll-hint { display: none; }
+  .oversikt { padding: 2.5rem 1.25rem 2rem; }
   .scroll-hint { display: none; }
   .kapittel { padding: 6rem 0 4rem; }
   .kapittel > * { margin-inline: 1.25rem; }

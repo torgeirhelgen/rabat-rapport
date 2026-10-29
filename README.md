@@ -97,6 +97,17 @@ flaten tones ut når man scroller videre.
 I innholdsfortegnelsen viser globusen hele Marokko. Holder man over et kapittel
 (eller går dit med Tab), viser globusen kapittelets kart.
 
+På smale skjermer ligger globusen i et bånd øverst. På forsiden står den på den
+røde flaten, og når man scroller blir den liggende øverst mens teksten glir under.
+
+### Rolig kart
+
+Visningene deler to faste kameraer, ett over Marokko og ett over Rabat/Salé
+(`MAROKKO` og `RABAT_SALE` i `kart-visninger.js`). Innenfor samme kamera står
+kartet stille og bare uthevinger tones inn og ut, så kartet beveger seg kun ved
+bytte mellom Marokko og Rabat/Salé. Globusen tegnes bare når noe endrer seg, og
+pulsringen rundt uthevede steder går noen få ganger før den stopper.
+
 ### Bilder
 
 1. Legg originalene i `bilder-original/<kapittel>/` (infrastruktur, kompleks, lnfp, akademi).
