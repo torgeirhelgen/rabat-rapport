@@ -1,0 +1,253 @@
+import { marked } from "marked";
+import rapport from "../../content/rapport.md?raw";
+import { Globus } from "./globus.js";
+import { hentVisning } from "./kart-visninger.js";
+import { lastBilder, Lysboks, Bildepanel, lagBildestripe } from "./galleri.js";
+import { SENTRE } from "../data/steder.js";
+import { TABELL } from "../data/botola.js";
+
+const redusert = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const mobilMQ = matchMedia("(max-width: 959px)");
+
+const INGRESSER = {
+  infrastruktur: "Forbundet, staten og fem regionale sentre for spillerutvikling.",
+  kompleks: "Det nasjonale anlegget i Salé, åpnet i 2019.",
+  lnfp: "Ligaforeningen, klassifisering av utviklingsavdelinger og nasjonale aldersbestemte serier.",
+  akademi: "Det selvstendige akademiet som regnes som landets beste utviklingsmiljø for gutter.",
+};
+
+// ---------- 1. Bygg kapitlene fra Markdown ----------
+
+function byggKapitler(md) {
+  const mal = document.createElement("template");
+  mal.innerHTML = marked.parse(md);
+  const kapitler = [];
+  let kapittel = null, kart = null, stil = null;
+
+  for (const node of [...mal.content.childNodes]) {
+    if (node.nodeType === Node.COMMENT_NODE) {
+      const m = node.data.trim().match(/^(kapittel|kart|komponent|stil):\s*(\S+)$/);
+      if (!m) continue;
+      const [, type, verdi] = m;
+      if (type === "kapittel") {
+        kapittel = { id: verdi, tittel: "", blokker: [] };
+        kapitler.push(kapittel);
+        kart = null;
+      } else if (type === "kart") kart = verdi;
+      else if (type === "stil") stil = verdi;
+      else if (type === "komponent" && kapittel) {
+        const el = document.createElement("div");
+        el.dataset.komponent = verdi;
+        if (kart) el.dataset.kart = kart;
+        kapittel.blokker.push(el);
+      }
+      continue;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE || !kapittel) continue;
+    if (node.tagName === "H2") {
+      kapittel.tittel = node.textContent;
+      continue;
+    }
+    if (kart) node.dataset.kart = kart;
+    if (stil) {
+      node.classList.add(`stil-${stil}`);
+      stil = null;
+    }
+    kapittel.blokker.push(node);
+  }
+  return kapitler;
+}
+
+function sentreListe() {
+  const ul = document.createElement("ul");
+  ul.className = "sentre-liste";
+  ul.setAttribute("aria-label", "Forbundets anlegg og regionale sentre");
+  for (const s of SENTRE) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <button type="button" class="sted-knapp" data-sted="${s.id}">
+        <span class="sted-ikon ${s.type}" aria-hidden="true"></span>
+        <span class="sted-navn">${s.type === "nasjonalt" ? "Salé" : s.navn}</span>
+        <span class="sted-type">${s.type === "nasjonalt" ? "Nasjonalt anlegg" : "Regionalt senter"}</span>
+      </button>`;
+    ul.append(li);
+  }
+  return ul;
+}
+
+function botolaTabell() {
+  const fig = document.createElement("figure");
+  fig.className = "botola";
+  fig.innerHTML = `
+    <figcaption>
+      <span class="kicker">Botola Pro 2025/26</span>
+      <span class="botola-tittel">Sluttabell</span>
+      <span class="botola-hjelp">Hold musepekeren over en klubb eller en by på kartet.</span>
+    </figcaption>
+    <div class="tabell-rull">
+      <table>
+        <thead><tr><th scope="col" class="tall">#</th><th scope="col">Klubb</th><th scope="col">By</th><th scope="col" class="tall">Poeng</th></tr></thead>
+        <tbody>${TABELL.map(
+          (r) => `<tr tabindex="0" data-by="${r.by}" class="${r.pos === 1 ? "er-mester" : ""} ${r.merknad?.startsWith("Nedrykk") ? "er-nedrykk" : ""}">
+            <td class="tall">${r.pos}</td>
+            <th scope="row">${r.klubb}${r.merknad ? `<span class="merknad">${r.merknad}</span>` : ""}</th>
+            <td>${r.by}</td>
+            <td class="tall">${r.poeng}</td>
+          </tr>`
+        ).join("")}</tbody>
+      </table>
+    </div>
+    <p class="kilde">Kilde: TNT Sports, Global Sports Archive og Wikipedia. Kawkab Marrakech og CODM Meknès endte på like mange poeng.</p>`;
+  return fig;
+}
+
+const kapitler = byggKapitler(rapport);
+const beholder = document.getElementById("kapitler");
+const toc = document.getElementById("toc");
+const nav = document.getElementById("nav-kapitler");
+
+kapitler.forEach((k, i) => {
+  const nr = String(i + 1).padStart(2, "0");
+  const sek = document.createElement("section");
+  sek.className = "kapittel";
+  sek.id = k.id;
+  sek.dataset.kapittel = k.id;
+  sek.setAttribute("aria-labelledby", `${k.id}-tittel`);
+  const hode = document.createElement("header");
+  hode.className = "kapittel-hode";
+  hode.dataset.kart = k.blokker.find((b) => b.dataset.kart)?.dataset.kart || "hero";
+  hode.innerHTML = `<p class="kicker">Kapittel ${nr}</p><h2 id="${k.id}-tittel">${k.tittel}</h2><hr class="gull-strek">`;
+  sek.append(hode, ...k.blokker);
+  beholder.append(sek);
+
+  toc.insertAdjacentHTML(
+    "beforeend",
+    `<li><a href="#${k.id}"><span class="toc-nr">${nr}</span><span class="toc-tittel">${k.tittel}</span><span class="toc-ingress">${INGRESSER[k.id] || ""}</span></a></li>`
+  );
+  nav.insertAdjacentHTML("beforeend", `<li><a href="#${k.id}" data-nav="${k.id}">${k.tittel}</a></li>`);
+});
+
+document.querySelectorAll('[data-komponent="sentre-liste"]').forEach((el) => el.append(sentreListe()));
+document.querySelectorAll('[data-komponent="botola-tabell"]').forEach((el) => el.append(botolaTabell()));
+
+// ---------- 2. Globus ----------
+
+const globus = new Globus(document.getElementById("globus"), { redusertBevegelse: redusert });
+const kartStatus = document.getElementById("kart-status");
+let aktivVisning = "hero";
+
+function visKart(id, umiddelbar = false) {
+  aktivVisning = id;
+  const v = hentVisning(id, mobilMQ.matches);
+  globus.settVisning(v, { umiddelbar });
+  document.body.dataset.kart = id;
+  if (v.beskrivelse && kartStatus.textContent !== v.beskrivelse) kartStatus.textContent = v.beskrivelse;
+}
+visKart("hero", true);
+mobilMQ.addEventListener("change", () => visKart(aktivVisning, true));
+
+// Samspill mellom tekst (liste og tabell) og kart.
+function uthevFraTekst(ider) {
+  globus.settUthev(ider);
+  const sett = new Set(ider);
+  document.querySelectorAll("tr[data-by]").forEach((tr) => tr.classList.toggle("er-uthevet", sett.has(tr.dataset.by)));
+}
+document.addEventListener("pointerover", (e) => {
+  const sted = e.target.closest?.("[data-sted]");
+  const rad = e.target.closest?.("tr[data-by]");
+  if (sted) uthevFraTekst([sted.dataset.sted]);
+  else if (rad) uthevFraTekst([rad.dataset.by]);
+});
+document.addEventListener("pointerout", (e) => {
+  if (e.target.closest?.("[data-sted], tr[data-by]")) uthevFraTekst([]);
+});
+document.addEventListener("focusin", (e) => {
+  const sted = e.target.closest?.("[data-sted]");
+  const rad = e.target.closest?.("tr[data-by]");
+  uthevFraTekst(sted ? [sted.dataset.sted] : rad ? [rad.dataset.by] : []);
+});
+
+// Treff på kartet med musepeker: verktøytips og utheving i tabellen.
+const tips = document.getElementById("kart-tips");
+const canvas = document.getElementById("globus");
+window.addEventListener("pointermove", (e) => {
+  if (e.pointerType === "touch") return;
+  const r = canvas.getBoundingClientRect();
+  const over = document.elementFromPoint(e.clientX, e.clientY);
+  const fritt = over === canvas || over?.classList?.contains("kart-slipp");
+  const t = fritt ? globus.finnTreff(e.clientX - r.left, e.clientY - r.top) : null;
+  globus.settHover(t?.id || null);
+  document.body.classList.toggle("peker-paa-kart", !!t);
+  if (t) {
+    tips.hidden = false;
+    tips.innerHTML = `<strong>${t.tittel}</strong>${t.tekst ? `<span>${t.tekst.replace(/\n/g, "<br>")}</span>` : ""}`;
+    const x = Math.min(e.clientX + 16, innerWidth - tips.offsetWidth - 12);
+    const y = Math.min(e.clientY + 16, innerHeight - tips.offsetHeight - 12);
+    tips.style.transform = `translate(${x}px, ${y}px)`;
+  } else tips.hidden = true;
+});
+globus.on("hover", (id) => {
+  document.querySelectorAll("tr[data-by]").forEach((tr) => tr.classList.toggle("er-uthevet", tr.dataset.by === id));
+  document.querySelectorAll("[data-sted]").forEach((b) => b.classList.toggle("er-uthevet", b.dataset.sted === id));
+});
+
+// ---------- 3. Scrollstyring ----------
+// Elementet som krysser en linje litt over midten av skjermen bestemmer kartvisningen.
+
+const kartElementer = [...document.querySelectorAll("[data-kart]")];
+let aktivtKapittel = null;
+const kartObs = new IntersectionObserver(
+  (oppf) => {
+    for (const o of oppf) {
+      if (!o.isIntersecting) continue;
+      const el = o.target;
+      if (el.dataset.kart !== aktivVisning) visKart(el.dataset.kart);
+      const kap = el.closest("[data-kapittel]")?.dataset.kapittel || null;
+      if (kap !== aktivtKapittel) settKapittel(kap);
+    }
+  },
+  { rootMargin: "-42% 0px -52% 0px" }
+);
+kartElementer.forEach((el) => kartObs.observe(el));
+
+// Fremdriftslinje og aktiv lenke i navigasjonen.
+const fremdrift = document.getElementById("fremdrift");
+addEventListener(
+  "scroll",
+  () => {
+    const maks = document.documentElement.scrollHeight - innerHeight;
+    fremdrift.style.transform = `scaleX(${maks > 0 ? scrollY / maks : 0})`;
+    document.body.classList.toggle("har-scrollet", scrollY > innerHeight * 0.5);
+  },
+  { passive: true }
+);
+
+// ---------- 4. Bilder ----------
+
+const lysboks = new Lysboks(document.getElementById("lysboks"));
+const panel = new Bildepanel(document.getElementById("galleri"), lysboks);
+const bilderPerKapittel = new Map();
+
+lastBilder().then((bilder) => {
+  for (const k of kapitler) {
+    const liste = bilder.filter((b) => b.kapittel === k.id);
+    bilderPerKapittel.set(k.id, liste);
+    if (liste.length) {
+      const hode = document.querySelector(`#${k.id} .kapittel-hode`);
+      hode.after(lagBildestripe(liste, lysboks));
+    }
+  }
+  settKapittel(aktivtKapittel, true);
+});
+
+const TOM = [];
+function settKapittel(id, tving = false) {
+  if (id === aktivtKapittel && !tving) return;
+  aktivtKapittel = id;
+  panel.settBilder(bilderPerKapittel.get(id) || TOM);
+  document.querySelectorAll("[data-nav]").forEach((a) => {
+    if (a.dataset.nav === id) a.setAttribute("aria-current", "true");
+    else a.removeAttribute("aria-current");
+  });
+  document.getElementById("nav-naa").textContent = id ? kapitler.find((k) => k.id === id)?.tittel : "";
+}

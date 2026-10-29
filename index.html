@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="nb" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Rabat Rapport</title>
+  <meta name="description" content="Referanser fra marokkansk fotball – intern rapport.">
+  <meta name="theme-color" content="#1E0B0D">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23A8202A'/%3E%3Cpath d='M16 6l2.6 8h8.4l-6.8 5 2.6 8L16 22l-6.8 5 2.6-8L5 14h8.4z' fill='none' stroke='%234CC38A' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/src/css/rapport.css">
+</head>
+<body data-kart="hero">
+  <a class="hopp" href="#innhold">Hopp til innholdet</a>
+
+  <header class="topplinje">
+    <a class="merke" href="#start" aria-label="Rabat Rapport, til toppen">
+      <svg class="merke-stjerne" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.2 6.8h7.1l-5.8 4.2 2.2 6.8L12 16.1l-5.8 4.2 2.2-6.8-5.8-4.2h7.1z"/></svg>
+      <span>Rabat Rapport</span>
+    </a>
+    <nav aria-label="Kapitler">
+      <ol id="nav-kapitler" class="nav-kapitler"></ol>
+      <span id="nav-naa" class="nav-naa" aria-hidden="true"></span>
+    </nav>
+    <div class="fremdrift" aria-hidden="true"><span id="fremdrift"></span></div>
+  </header>
+
+  <div class="kart" aria-hidden="true">
+    <canvas id="globus"></canvas>
+    <div class="kart-slipp"></div>
+  </div>
+  <div class="slør" aria-hidden="true"></div>
+  <p id="kart-status" class="sr-only" aria-live="polite"></p>
+  <div id="kart-tips" class="kart-tips" role="tooltip" hidden></div>
+
+  <aside id="galleri" class="galleri er-tom" aria-label="Bilder fra kapittelet" aria-hidden="true">
+    <button type="button" class="galleri-hoved">
+      <img alt="">
+      <span class="galleri-forstorr" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>
+      </span>
+    </button>
+    <div class="galleri-linje">
+      <p class="galleri-tekst"></p>
+      <div class="galleri-kontroller">
+        <button type="button" class="ikon-knapp" data-forrige aria-label="Forrige bilde"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <span class="galleri-teller tabular"></span>
+        <button type="button" class="ikon-knapp" data-neste aria-label="Neste bilde"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <div class="galleri-miniatyrer"></div>
+  </aside>
+
+  <main id="innhold">
+    <section class="hero" id="start" data-kart="hero" aria-labelledby="tittel">
+      <div class="hero-innhold">
+        <p class="kicker">Intern rapport</p>
+        <h1 id="tittel">
+          <svg class="tittel-stjerne" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.2 6.8h7.1l-5.8 4.2 2.2 6.8L12 16.1l-5.8 4.2 2.2-6.8-5.8-4.2h7.1z"/></svg>
+          Rabat Rapport
+        </h1>
+        <p class="undertittel">Referanser fra marokkansk fotball</p>
+        <hr class="gull-strek">
+        <nav aria-labelledby="toc-tittel" class="toc-blokk">
+          <h2 id="toc-tittel" class="toc-overskrift">Innhold</h2>
+          <ol id="toc" class="toc"></ol>
+        </nav>
+      </div>
+      <a class="scroll-hint" href="#infrastruktur">
+        <span>Les rapporten</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </a>
+    </section>
+
+    <div id="kapitler"></div>
+
+    <footer class="kilder" data-kart="akademi">
+      <hr class="gull-strek">
+      <h2>Kart og kilder</h2>
+      <ul>
+        <li>Kartgrunnlag: <a href="https://www.naturalearthdata.com/">Natural Earth</a> (fritt tilgjengelig).</li>
+        <li>Plassering av Mohammed VI Football Complex: Wikidata. Akademiets plassering er omtrentlig og vises med stiplet kant.</li>
+        <li>Regionale sentre er plassert i sentrum av byene de ligger i. Elva Bou Regreg er tegnet forenklet.</li>
+        <li>Botola Pro 2025/26: TNT Sports, Global Sports Archive og Wikipedia.</li>
+      </ul>
+    </footer>
+  </main>
+
+  <dialog id="lysboks" class="lysboks" aria-label="Bildevisning">
+    <div class="lysboks-scene">
+      <img alt="">
+    </div>
+    <div class="lysboks-linje">
+      <p class="lysboks-tekst"></p>
+      <span class="lysboks-teller tabular"></span>
+    </div>
+    <button type="button" class="ikon-knapp lysboks-lukk" data-lukk aria-label="Lukk"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button type="button" class="ikon-knapp lysboks-forrige" data-forrige aria-label="Forrige bilde"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button type="button" class="ikon-knapp lysboks-neste" data-neste aria-label="Neste bilde"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </dialog>
+
+  <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>

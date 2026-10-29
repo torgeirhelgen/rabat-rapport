@@ -1,0 +1,100 @@
+{
+  "bilder": [
+    {
+      "id": "infrastruktur-1",
+      "kapittel": "infrastruktur",
+      "fil": "plassholder-infrastruktur-1.svg",
+      "tekst": "Plassholder 1 for kapittelet «Nasjonal infrastruktur»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "infrastruktur-2",
+      "kapittel": "infrastruktur",
+      "fil": "plassholder-infrastruktur-2.svg",
+      "tekst": "Plassholder 2 for kapittelet «Nasjonal infrastruktur»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "infrastruktur-3",
+      "kapittel": "infrastruktur",
+      "fil": "plassholder-infrastruktur-3.svg",
+      "tekst": "Plassholder 3 for kapittelet «Nasjonal infrastruktur»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "kompleks-1",
+      "kapittel": "kompleks",
+      "fil": "plassholder-kompleks-1.svg",
+      "tekst": "Plassholder 1 for kapittelet «Mohammed VI Football Complex»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "kompleks-2",
+      "kapittel": "kompleks",
+      "fil": "plassholder-kompleks-2.svg",
+      "tekst": "Plassholder 2 for kapittelet «Mohammed VI Football Complex»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "kompleks-3",
+      "kapittel": "kompleks",
+      "fil": "plassholder-kompleks-3.svg",
+      "tekst": "Plassholder 3 for kapittelet «Mohammed VI Football Complex»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "lnfp-1",
+      "kapittel": "lnfp",
+      "fil": "plassholder-lnfp-1.svg",
+      "tekst": "Plassholder 1 for kapittelet «LNFP»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "lnfp-2",
+      "kapittel": "lnfp",
+      "fil": "plassholder-lnfp-2.svg",
+      "tekst": "Plassholder 2 for kapittelet «LNFP»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "lnfp-3",
+      "kapittel": "lnfp",
+      "fil": "plassholder-lnfp-3.svg",
+      "tekst": "Plassholder 3 for kapittelet «LNFP»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "akademi-1",
+      "kapittel": "akademi",
+      "fil": "plassholder-akademi-1.svg",
+      "tekst": "Plassholder 1 for kapittelet «Akademiet»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "akademi-2",
+      "kapittel": "akademi",
+      "fil": "plassholder-akademi-2.svg",
+      "tekst": "Plassholder 2 for kapittelet «Akademiet»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    },
+    {
+      "id": "akademi-3",
+      "kapittel": "akademi",
+      "fil": "plassholder-akademi-3.svg",
+      "tekst": "Plassholder 3 for kapittelet «Akademiet»",
+      "alt": "Plassholder for bilde",
+      "kreditt": ""
+    }
+  ]
+}

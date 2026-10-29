@@ -1,0 +1,35 @@
+{
+  "name": "rabat-rapport",
+  "version": "1.0.0",
+  "description": "Rabat Rapport – interaktiv rapport om marokkansk fotball",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "geodata": "node scripts/lag-geodata.mjs",
+    "bilder": "node scripts/lag-bilder.mjs",
+    "build:enkeltfil": "vite build --mode enkeltfil"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/torgeirhelgen/rabat-rapport.git"
+  },
+  "bugs": {
+    "url": "https://github.com/torgeirhelgen/rabat-rapport/issues"
+  },
+  "homepage": "https://github.com/torgeirhelgen/rabat-rapport#readme",
+  "devDependencies": {
+    "sharp": "^0.35.5",
+    "vite": "^6.4.5",
+    "vite-plugin-singlefile": "^2.3.4"
+  },
+  "dependencies": {
+    "d3-array": "^3.2.4",
+    "d3-geo": "^3.1.1",
+    "marked": "^18.1.2",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "private": true,
+  "type": "module"
+}
