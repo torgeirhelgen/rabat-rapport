@@ -129,18 +129,20 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 }
 body.paa-forside .topplinje { transform: translateY(-100%); opacity: 0; }
 .merke {
-  display: inline-flex; align-items: center; gap: 0.6rem; flex-shrink: 0;
+  display: inline-flex; align-items: baseline; gap: 0.5rem; flex-shrink: 0;
+  padding-block: 0.75rem;
   color: var(--text); text-decoration: none;
-  font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; line-height: 1;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; line-height: 1;
+  letter-spacing: 0.06em; text-transform: uppercase;
 }
-.merke-flagg {
-  display: grid; place-items: center; width: 1.75rem; height: 1.25rem; border-radius: 3px;
-  background: var(--rod);
+/* Frittstående hvit stjerne i omriss, like høy som versalene. */
+.merke-stjerne { position: relative; top: -0.02em; width: 0.72em; height: 0.72em; flex-shrink: 0; }
+.merke-stjerne path {
+  fill: transparent; stroke: var(--text); stroke-width: 1.3px; vector-effect: non-scaling-stroke;
 }
-.merke-flagg .merke-stjerne { width: 0.95rem; height: 0.95rem; }
 
 /* Flaggstjernen: grønt flettet pentagram med tynn hvit kant, som i flagget. */
-.flaggstjerne path, .merke-stjerne path {
+.flaggstjerne path {
   fill: var(--flagg-gronn); stroke: rgba(255, 255, 255, 0.55); stroke-width: 0.7;
 }
 /* Stjernen som tegn foran kapitler: bare omriss. */
