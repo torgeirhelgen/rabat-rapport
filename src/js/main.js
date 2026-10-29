@@ -3,10 +3,10 @@ import "@fontsource/aref-ruqaa/700.css";
 import { marked } from "marked";
 import rapport from "../../content/rapport.md?raw";
 import { Globus } from "./globus.js";
-import { hentVisning } from "./kart-visninger.js";
+import { hentVisning, FORHANDSVISNING } from "./kart-visninger.js";
 import { lastBilder, Lysboks, Bildepanel, lagBildestripe } from "./galleri.js";
 import { SENTRE } from "../data/steder.js";
-import { TABELL } from "../data/botola.js";
+import { TABELL, BYER } from "../data/botola.js";
 
 const redusert = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mobilMQ = matchMedia("(max-width: 959px)");
@@ -133,7 +133,7 @@ kapitler.forEach((k) => {
 
   toc.insertAdjacentHTML(
     "beforeend",
-    `<li><a href="#${k.id}" data-forhandsvis="${forsteKart}">${STJERNE}<span class="toc-tittel">${k.tittel}</span><span class="toc-ingress">${INGRESSER[k.id] || ""}</span></a></li>`
+    `<li><a href="#${k.id}" data-forhandsvis="${k.id}">${STJERNE}<span class="toc-tittel">${k.tittel}</span><span class="toc-ingress">${INGRESSER[k.id] || ""}</span></a></li>`
   );
   nav.insertAdjacentHTML("beforeend", `<li><a href="#${k.id}" data-nav="${k.id}">${k.tittel}</a></li>`);
 });
@@ -147,24 +147,36 @@ const globus = new Globus(document.getElementById("globus"), { redusertBevegelse
 const kartStatus = document.getElementById("kart-status");
 let aktivVisning = "hero";
 
+// Kartbåndet øverst på mobil, målt fra CSS (topplinje + --kart-hoyde).
+function mobilbånd() {
+  const r = document.querySelector(".kartbaand-maal").getBoundingClientRect();
+  return { topp: r.top, hoyde: r.height };
+}
+
 function visKart(id, umiddelbar = false) {
   aktivVisning = id;
-  const v = hentVisning(id, mobilMQ.matches);
+  globus.settUthev([]);
+  const v = hentVisning(id, mobilMQ.matches, mobilbånd());
   globus.settVisning(v, { umiddelbar });
   document.body.dataset.kart = id;
   if (v.beskrivelse && kartStatus.textContent !== v.beskrivelse) kartStatus.textContent = v.beskrivelse;
 }
 visKart("hero", true);
 mobilMQ.addEventListener("change", () => visKart(aktivVisning, true));
+addEventListener("resize", () => {
+  if (mobilMQ.matches) visKart(aktivVisning, true);
+});
 
-// Innholdsfortegnelsen: å holde over et kapittel viser kapittelets kart.
+// Innholdsfortegnelsen: å holde over et kapittel fremhever kapittelets steder
+// på oversiktskartet, uten at kartet zoomer eller flytter seg.
 let forhandsvisning = null;
-function forhandsvis(id) {
+function forhandsvis(kapittel) {
   clearTimeout(forhandsvisning);
   forhandsvisning = setTimeout(() => {
     if (aktivVisning !== "oversikt") return;
-    globus.settVisning(hentVisning(id || "oversikt", mobilMQ.matches));
-  }, id ? 260 : 300);
+    const ider = FORHANDSVISNING[kapittel];
+    globus.settUthev(ider === "klubbyer" ? Object.keys(BYER) : ider || []);
+  }, kapittel ? 80 : 150);
 }
 toc.addEventListener("pointerover", (e) => {
   const a = e.target.closest("[data-forhandsvis]");
@@ -227,49 +239,61 @@ globus.on("hover", (id) => {
 // ---------- 3. Scrollstyring ----------
 // Elementet som krysser en linje litt over midten av skjermen bestemmer kartvisningen.
 
-const kartElementer = [...document.querySelectorAll("[data-kart]")];
+const kartElementer = [...document.querySelectorAll("main [data-kart]")];
 let aktivtKapittel = null;
-const kartObs = new IntersectionObserver(
-  (oppf) => {
-    for (const o of oppf) {
-      if (!o.isIntersecting) continue;
-      const el = o.target;
-      if (el.dataset.kart !== aktivVisning) visKart(el.dataset.kart);
-      const kap = el.closest("[data-kapittel]")?.dataset.kapittel || null;
-      if (kap !== aktivtKapittel) settKapittel(kap);
-    }
-  },
-  { rootMargin: "-42% 0px -52% 0px" }
-);
-kartElementer.forEach((el) => kartObs.observe(el));
 
-// Fremdriftslinje og aktiv lenke i navigasjonen.
+// Linjen på skjermen som bestemmer hva som er aktivt. Et avsnitt eller en
+// kapitteltittel blir aktiv når toppen passerer linjen. På desktop ligger den
+// godt nede på skjermen, så kartet bytter når neste tittel er synlig. På mobil
+// ligger den i tekstfeltet under kartbåndet, så tittelen aldri skjules bak
+// kartet før kapittelet bytter.
+function aktivLinje() {
+  if (!mobilMQ.matches) return innerHeight * 0.7;
+  const { topp, hoyde } = mobilbånd();
+  const bunn = topp + hoyde;
+  return bunn + (innerHeight - bunn) * 0.55;
+}
+
+function bestemAktiv() {
+  const linje = aktivLinje();
+  let aktiv = null;
+  for (const el of kartElementer) {
+    if (el.getBoundingClientRect().top <= linje) aktiv = el;
+    else break;
+  }
+  // Over første kapittel: forsiden helt øverst, ellers oversikten over Marokko.
+  // På mobil venter kartet til forsiden nesten er borte, så det ikke dekker tittelen.
+  const forsideGrense = innerHeight * (mobilMQ.matches ? 0.38 : 0.12);
+  const id = aktiv ? aktiv.dataset.kart : scrollY < forsideGrense ? "hero" : "oversikt";
+  if (id !== aktivVisning) visKart(id);
+  const kap = aktiv?.closest("[data-kapittel]")?.dataset.kapittel || null;
+  if (kap !== aktivtKapittel) settKapittel(kap);
+}
+
+// Fremdriftslinje, forsidetoning og aktiv visning, maks én gang per bilde.
 const fremdrift = document.getElementById("fremdrift");
+let ventendeScroll = false;
+function vedScroll() {
+  ventendeScroll = false;
+  const maks = document.documentElement.scrollHeight - innerHeight;
+  fremdrift.style.transform = `scaleX(${maks > 0 ? scrollY / maks : 0})`;
+  // Den røde forsiden tones ut i løpet av den første delen av scrollingen.
+  const andel = Math.min(1, Math.max(0, 1 - scrollY / (innerHeight * 0.45)));
+  document.documentElement.style.setProperty("--forside", andel.toFixed(3));
+  document.body.classList.toggle("paa-forside", andel > 0.35);
+  bestemAktiv();
+}
 addEventListener(
   "scroll",
   () => {
-    const maks = document.documentElement.scrollHeight - innerHeight;
-    fremdrift.style.transform = `scaleX(${maks > 0 ? scrollY / maks : 0})`;
-    oppdaterForside();
+    if (!ventendeScroll) {
+      ventendeScroll = true;
+      requestAnimationFrame(vedScroll);
+    }
   },
   { passive: true }
 );
-
-// Den røde forsiden tones ut mens man scroller ned mot innholdsfortegnelsen.
-// Over første kapittel styres kartet av scrollposisjonen: helt øverst forsiden,
-// og så snart man begynner å scrolle, oversikten over Marokko.
-const forsteKapittel = document.querySelector(".kapittel-hode");
-function oppdaterForside() {
-  const andel = Math.min(1, Math.max(0, 1 - scrollY / (innerHeight * 0.6)));
-  document.documentElement.style.setProperty("--forside", andel.toFixed(3));
-  document.body.classList.toggle("paa-forside", andel > 0.35);
-  const overKapitlene = forsteKapittel.getBoundingClientRect().top > innerHeight * 0.45;
-  if (overKapitlene) {
-    const id = scrollY < innerHeight * 0.12 ? "hero" : "oversikt";
-    if (id !== aktivVisning) visKart(id);
-  }
-}
-oppdaterForside();
+addEventListener("resize", () => requestAnimationFrame(vedScroll));
 
 // ---------- 4. Bilder ----------
 
@@ -300,3 +324,5 @@ function settKapittel(id, tving = false) {
   });
   document.getElementById("nav-naa").textContent = id ? kapitler.find((k) => k.id === id)?.tittel : "";
 }
+
+vedScroll();

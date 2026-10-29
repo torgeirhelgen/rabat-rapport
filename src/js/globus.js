@@ -25,8 +25,6 @@ const norge = land50.features.find((f) => f.id === NORGE_ID);
 const lokaleTrekk = {
   kyst: detalj.features.filter((f) => f.properties.type === "kyst"),
   byer: detalj.features.filter((f) => f.properties.type === "by"),
-  motorvei: detalj.features.filter((f) => f.properties.type === "motorvei"),
-  vei: detalj.features.filter((f) => f.properties.type === "vei"),
 };
 
 // Klubbyer: én prikk per by, med klubbene som hører til.
@@ -46,7 +44,6 @@ function lesFarger() {
     gull: v("--gold"),
     gullFyll: v("--gold-fill"),
     gronn: v("--accent"),
-    vann: v("--water"),
     kule: v("--globe-surface"),
     kuleKant: v("--globe-edge"),
   };
@@ -435,25 +432,6 @@ export class Globus {
     ctx.globalAlpha = alfa * 0.55;
     ctx.fill();
     ctx.globalAlpha = alfa;
-    // Veier.
-    ctx.beginPath();
-    for (const f of lokaleTrekk.vei) sti(f);
-    ctx.strokeStyle = "rgba(247, 241, 232, 0.22)";
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.beginPath();
-    for (const f of lokaleTrekk.motorvei) sti(f);
-    ctx.strokeStyle = "rgba(247, 241, 232, 0.4)";
-    ctx.lineWidth = 1.6;
-    ctx.stroke();
-    // Elv.
-    ctx.beginPath();
-    sti({ type: "LineString", coordinates: LOKALT.elv.linje });
-    ctx.strokeStyle = F.vann;
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.stroke();
     // Kyst.
     ctx.beginPath();
     for (const f of lokaleTrekk.kyst) sti(f);
@@ -470,10 +448,6 @@ export class Globus {
       this.tegnFlyIkon(fp.x, fp.y, alfa);
       this.etikett(LOKALT.flyplass.navn, fp.x + 14, fp.y + 4, { alfa: alfa * 0.85, str: 12 });
     }
-    // Elvenavn midt på linja.
-    const mid = LOKALT.elv.linje[6];
-    const ep = P.punkt(mid);
-    this.etikett(LOKALT.elv.navn, ep.x + 12, ep.y + 2, { alfa: alfa * 0.8, str: 12, farge: F.vann, kursiv: true });
     for (const e of LOKALT.etiketter) {
       const p = P.punkt(e.koord);
       if (!p.synlig) continue;
@@ -644,8 +618,10 @@ export class Globus {
       }
       ctx.restore();
       const venstre = s.id === "ksar" || s.id === "sale";
-      this.etikett(s.type === "nasjonalt" ? "Salé" : s.navn, venstre ? p.x - 14 : p.x + 14, p.y + 4, {
-        alfa: alfa * demp,
+      // I oversikten får bare uthevede steder navn; navnet tones inn med uthevingen.
+      const navnAlfa = this.visning.etiketter === "uthevet" ? u : 1;
+      if (navnAlfa > 0.01) this.etikett(s.type === "nasjonalt" ? "Salé" : s.navn, venstre ? p.x - 14 : p.x + 14, p.y + 4, {
+        alfa: alfa * demp * navnAlfa,
         str: 13 + u * 2,
         vekt: u > 0.5 ? 700 : 500,
         hoyre: venstre,
@@ -682,16 +658,19 @@ export class Globus {
         ctx.fillText(String(n), p.x, p.y + 0.5);
       }
       ctx.restore();
-      const visEtikett = P.pxPerGrad > 48 || u > 0.05;
-      if (interaktiv) {
+      // Navn vises i det interaktive kartet (når det er plass), og ellers bare på uthevede byer.
+      const navnAlfa = interaktiv ? (P.pxPerGrad > 48 || u > 0.05 ? 0.7 + 0.3 * u : 0) : this.visning.etiketter === "uthevet" ? u : 0;
+      if (navnAlfa > 0.01) {
         const venstre = ["Dcheira", "Casablanca", "El Jadida", "Zemamra", "Safi", "Rabat", "Tanger", "Meknès"].includes(by.id);
-        if (visEtikett) this.etikett(by.id, venstre ? p.x - r - 6 : p.x + r + 6, p.y + (by.id === "Dcheira" ? 14 : 4), {
-          alfa: alfa * demp * (0.7 + 0.3 * u),
+        this.etikett(by.id, venstre ? p.x - r - 6 : p.x + r + 6, p.y + (by.id === "Dcheira" ? 14 : 4), {
+          alfa: alfa * demp * navnAlfa,
           str: 12 + u * 2,
           vekt: u > 0.5 ? 700 : 500,
           hoyre: venstre,
           farge: u > 0.5 ? F.gronn : F.tekst,
         });
+      }
+      if (interaktiv) {
         this.treff.push({
           id: by.id, x: p.x, y: p.y, r: Math.max(14, r + 4), tittel: by.id,
           tekst: by.klubber.map((k) => `${k.pos}. ${k.klubb} – ${k.poeng} p`).join("\n"),

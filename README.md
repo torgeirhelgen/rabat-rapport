@@ -79,12 +79,12 @@ zoomen interpoleres logaritmisk.
   blir all bevegelse én sammenhengende rotasjon og zoom, og globusen kan ligge delvis
   utenfor skjermen.
 - **Data:** Natural Earth (fritt tilgjengelig) via `world-atlas`, og et utsnitt av
-  Natural Earth 10m for Marokko (kyst, byområder og hovedveier). `npm run geodata`
+  Natural Earth 10m for Marokko (kyst og byområder). `npm run geodata`
   lager filene i `src/data/` på nytt. Ingen karttjeneste, API-nøkkel eller ekstern
   tilkobling trengs når siden kjører.
 - **Presisjon:** Plasseringen av Mohammed VI Football Complex er hentet fra Wikidata,
   akademiets plassering er oppgitt av rapportforfatteren. Regionale sentre er plassert
-  i sentrum av byene. Elva Bou Regreg er tegnet forenklet. Rettes i `src/data/steder.js`.
+  i sentrum av byene. Rettes i `src/data/steder.js`.
 
 ### Forside og innholdsfortegnelse
 
@@ -94,11 +94,21 @@ Aref Ruqaa. Et svakt arabisk tekstbånd glir langsomt over skjermen, og globusen
 stiger opp som en horisont med Marokko nærmest og Norge ute ved kanten. Den røde
 flaten tones ut når man scroller videre.
 
-I innholdsfortegnelsen viser globusen hele Marokko. Holder man over et kapittel
-(eller går dit med Tab), viser globusen kapittelets kart.
+I innholdsfortegnelsen viser globusen hele Marokko med alle steder, uten navn.
+Holder man over et kapittel (eller går dit med Tab), fremheves kapittelets steder
+med navn. Kartet zoomer ikke (se `FORHANDSVISNING` i `kart-visninger.js`).
 
-På smale skjermer ligger globusen i et bånd øverst. På forsiden står den på den
-røde flaten, og når man scroller blir den liggende øverst mens teksten glir under.
+På smale skjermer står tittelen øverst på forsiden og globusen som en halvsirkel
+nederst. Når man scroller, tones den røde flaten ut, og kartet blir et bånd øverst
+på skjermen mens teksten glir under.
+
+### Når kartet bytter
+
+Et avsnitt eller en kapitteltittel blir aktiv når toppen passerer en fast linje
+på skjermen (`aktivLinje()` i `main.js`). På desktop ligger linjen på 70 % av
+skjermhøyden, så kapittel og kart bytter når neste tittel er synlig. På mobil
+ligger den midt i tekstfeltet under kartbåndet, så tittelen er synlig under
+kartet når kapittelet bytter.
 
 ### Rolig kart
 

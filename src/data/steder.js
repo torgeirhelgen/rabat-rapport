@@ -44,16 +44,6 @@ export const LOKALT = {
     { navn: "Atlanterhavet", koord: [-6.8, 34.12], hav: true },
   ],
   flyplass: { navn: "Rabat–Salé lufthavn", koord: [-6.7515, 34.0515] },
-  // Bou Regreg, forenklet og omtrentlig linje fra elvemunningen og innover i landet.
-  // Munningen er lagt på kystlinjen fra Natural Earth, så de henger sammen.
-  elv: {
-    navn: "Bou Regreg",
-    linje: [
-      [-6.8221, 34.0396], [-6.822, 34.029], [-6.815, 34.019], [-6.808, 34.011], [-6.801, 34.002],
-      [-6.792, 33.992], [-6.781, 33.983], [-6.769, 33.975], [-6.760, 33.966], [-6.749, 33.956],
-      [-6.736, 33.947], [-6.722, 33.940],
-    ],
-  },
 };
 
 // Stemningsskapende linjer fra Marokko til Norge på forsiden.

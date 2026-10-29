@@ -40,7 +40,6 @@
   --rod-dyp:      #661417;
   --flagg-gronn:  #006233;
   --hvit-varm:    #FFF8EE;
-  --water:        #6FA8C7;
 
   --globe-surface: #3A161A;
   --globe-edge:    #220C0F;
@@ -177,7 +176,8 @@ body.paa-forside .topplinje { transform: translateY(-100%); opacity: 0; }
 
 .kart { position: fixed; inset: 0; z-index: 0; }
 .kart canvas { display: block; width: 100%; height: 100%; }
-.kart-forside { display: none; }
+/* Usynlig mål for kartbåndet øverst på mobil (brukes av skriptet). */
+.kartbaand-maal { position: fixed; inset: var(--topp, 0) 0 auto 0; height: var(--kart-hoyde, 0); visibility: hidden; pointer-events: none; }
 .slør {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(90deg,
@@ -474,35 +474,46 @@ main > *, .kapittel > * { pointer-events: auto; }
 @media (max-width: 959px) {
   :root { --kart-hoyde: 44svh; --kol-start: 1.25rem; }
   .topplinje { background: var(--bg); padding-inline: 1.25rem; gap: 1rem; }
-  .kart { inset: var(--topp) 0 auto 0; height: var(--kart-hoyde); z-index: 5; background: var(--bg); }
-  .kart::after {
-    content: ""; position: absolute; inset: auto 0 0 0; height: 2.5rem;
-    background: linear-gradient(transparent, var(--bg)); pointer-events: none;
+
+  /* Kartet dekker hele skjermen på forsiden (globusen som halvsirkel nederst).
+     Når man scroller, klippes det ned til et bånd øverst, og båndet får
+     rapportens mørke bakgrunn. --forside går fra 1 (øverst) til 0. */
+  .kart {
+    inset: 0; z-index: 5; pointer-events: none;
+    --klipp: clamp(0, calc((1 - var(--forside, 1)) * 1.4), 1);
+    clip-path: inset(0 0 calc((100% - var(--topp) - var(--kart-hoyde)) * var(--klipp)) 0);
   }
-  .slør { display: none; }
-  main { pointer-events: auto; padding-top: calc(var(--topp) + var(--kart-hoyde)); }
-  .kapittel, #kapitler, .forside { pointer-events: auto; }
-  /* På forsiden er kartbåndet gjennomsiktig, så globusen står på den røde flaten.
-     Når man scroller, tones den røde flaten ut og globusen blir værende øverst. */
-  .kart { overflow: hidden; }
-  .kart-forside {
-    display: block; position: absolute; z-index: -1; inset: calc(-1 * var(--topp)) 0 auto 0; height: 100svh;
-    background: radial-gradient(circle at 0 0, var(--rod-lys) 0%, var(--rod) 30%, var(--rod-dyp) 100%);
-    opacity: var(--forside, 1);
+  /* Båndets mørke bakgrunn kommer først helt på slutten av overgangen, så
+     forsiden ikke får en mørk skygge mens man scroller. */
+  .kart::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; background: var(--bg);
+    opacity: clamp(0, calc((0.3 - var(--forside, 1)) * 3.34), 1);
   }
   .kart canvas { position: relative; }
-  .kart::after { opacity: calc(1 - var(--forside, 1)); }
-  .forside-flate { z-index: 3; }
-  main { z-index: 4; }
-  .forside-flate::after {
-    -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 45%);
-    mask-image: linear-gradient(to top, #000 0%, transparent 45%);
+  .kart::after {
+    content: ""; position: absolute; inset: calc(var(--topp) + var(--kart-hoyde) - 2.5rem) 0 auto 0; height: 2.5rem;
+    background: linear-gradient(transparent, var(--bg)); pointer-events: none;
+    opacity: clamp(0, calc((0.3 - var(--forside, 1)) * 3.34), 1);
   }
-  .forside { min-height: calc(100svh - var(--topp) - var(--kart-hoyde)); padding-top: 1.75rem; }
-  .flaggstjerne { width: 2.75rem; margin-bottom: 0.75rem; }
+  .slør { display: none; }
+  .forside-flate { z-index: 3; }
+  .forside-flate::after {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 40%);
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 40%);
+  }
+  main { pointer-events: auto; padding-top: calc(var(--topp) + var(--kart-hoyde)); z-index: 4; }
+  .kapittel, #kapitler, .forside { pointer-events: auto; }
+
+  /* Forsiden: tittel øverst, globusen som halvsirkel nederst. */
+  .forside {
+    margin-top: calc(-1 * (var(--topp) + var(--kart-hoyde)));
+    min-height: 100svh;
+    padding-top: 9svh;
+  }
+  .flaggstjerne { width: 3rem; margin-bottom: 1rem; }
+  .arabisk-band { margin-top: 1.25rem; }
   .scroll-hint { display: none; }
   .oversikt { padding: 2.5rem 1.25rem 2rem; }
-  .scroll-hint { display: none; }
   .kapittel { padding: 6rem 0 4rem; }
   .kapittel > * { margin-inline: 1.25rem; }
   .kapittel p { font-size: 1.125rem; }

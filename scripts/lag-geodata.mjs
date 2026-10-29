@@ -43,10 +43,9 @@ for (let lat = -84; lat <= 84; lat += STEG) {
 fs.writeFileSync(path.join(OUT, "globus-prikker.json"), JSON.stringify(prikker));
 console.log("globus-prikker:", prikker.length / 2);
 
-// 2. Detaljer for Marokko og Rabat/Salé: byområder og hovedveier.
+// 2. Detaljer for Marokko og Rabat/Salé: kystlinje og byområder.
 const MAROKKO = [-13.5, 27.5, -0.8, 36.2];
 const urban = await hent("ne_10m_urban_areas");
-const veier = await hent("ne_10m_roads");
 const kyst = await hent("ne_10m_coastline");
 
 // Kystlinjen deles opp slik at bare biter innenfor Marokko-utsnittet blir med.
@@ -69,14 +68,6 @@ const detalj = {
     ...urban.features
       .filter((f) => innenfor(MAROKKO)(f.geometry.coordinates))
       .map((f) => ({ type: "Feature", properties: { type: "by" }, geometry: { ...f.geometry, coordinates: rund(f.geometry.coordinates) } })),
-    ...veier.features
-      .filter((f) => f.geometry && innenfor(MAROKKO)(f.geometry.coordinates))
-      .filter((f) => f.properties.type === "Major Highway" || f.properties.type === "Road")
-      .map((f) => ({
-        type: "Feature",
-        properties: { type: f.properties.type === "Major Highway" ? "motorvei" : "vei" },
-        geometry: { ...f.geometry, coordinates: rund(f.geometry.coordinates) },
-      })),
   ],
 };
 fs.writeFileSync(path.join(OUT, "marokko-detalj.json"), JSON.stringify(detalj));
