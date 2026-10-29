@@ -47,7 +47,7 @@ Teksten ligger i `content/rapport.md`. HTML-kommentarer styrer det interaktive:
 | `<!-- kapittel: lnfp -->` | Starter et kapittel. Id-en brukes i lenker og i `bilder.json`. |
 | `<!-- kart: marokko-regionale -->` | Kartvisningen for avsnittene som følger. Se `src/js/kart-visninger.js`. |
 | `<!-- komponent: botola-tabell -->` | Setter inn en interaktiv komponent (`sentre-liste`, `botola-tabell`). |
-| `<!-- stil: stikkord -->` | Gir neste blokk en egen stil (`fasiliteter`, `stikkord`). |
+| `<!-- stil: fasiliteter -->` | Gir neste blokk en egen stil. |
 
 Når et avsnitt passerer midten av skjermen, bytter globusen til visningen avsnittet
 hører til. Det betyr at innhold, kartvisninger og bilder er skilt fra koden. I et
@@ -63,7 +63,7 @@ lnfp: {
   fokus: [-6.0, 32.9],   // [lengdegrad, breddegrad] i ankerpunktet
   skala: 4.2,            // globusens radius i forhold til skjermens korteste side
   anker: [0.74, 0.74],   // hvor på skjermen fokuspunktet havner (andel av bredde/høyde)
-  lag: ["klubbyer"],     // lag som tegnes: buer, sentre, klubbyer, lokalt, anlegg, rekruttering
+  lag: ["klubbyer"],     // lag som tegnes: buer, sentre, klubbyer, lokalt, anlegg
   uthev: [],             // id-er som fremheves
   interaktiv: true,      // musepeker gir verktøytips og utheving i tabellen
 }
@@ -82,10 +82,20 @@ zoomen interpoleres logaritmisk.
   Natural Earth 10m for Marokko (kyst, byområder og hovedveier). `npm run geodata`
   lager filene i `src/data/` på nytt. Ingen karttjeneste, API-nøkkel eller ekstern
   tilkobling trengs når siden kjører.
-- **Presisjon:** Plasseringen av Mohammed VI Football Complex er hentet fra Wikidata.
-  Akademiets plassering er omtrentlig og vises med stiplet kant. Regionale sentre er
-  plassert i sentrum av byene. Elva Bou Regreg er tegnet forenklet. Rettes i
-  `src/data/steder.js`.
+- **Presisjon:** Plasseringen av Mohammed VI Football Complex er hentet fra Wikidata,
+  akademiets plassering er oppgitt av rapportforfatteren. Regionale sentre er plassert
+  i sentrum av byene. Elva Bou Regreg er tegnet forenklet. Rettes i `src/data/steder.js`.
+
+### Forside og innholdsfortegnelse
+
+Forsiden bygger på designsystemet morocco-web-design og forsideskissen: flaggrød
+radial gradient med zellige-mønster, flaggets grønne stjerne og tittelen i
+Aref Ruqaa. Et svakt arabisk tekstbånd glir langsomt over skjermen, og globusen
+stiger opp som en horisont med Marokko nærmest og Norge ute ved kanten. Den røde
+flaten tones ut når man scroller videre.
+
+I innholdsfortegnelsen viser globusen hele Marokko. Holder man over et kapittel
+(eller går dit med Tab), viser globusen kapittelets kart.
 
 ### Bilder
 
@@ -104,11 +114,13 @@ Plassholderne for et kapittel forsvinner automatisk når kapittelet får ekte bi
 | topojson-client | Lesing av kartdata | ISC |
 | world-atlas | Verdenskart (Natural Earth) | ISC, data i public domain |
 | marked | Markdown til HTML | MIT |
+| @fontsource/aref-ruqaa | Visningsskrift, levert fra egen server | SIL Open Font License 1.1 |
 | vite, vite-plugin-singlefile | Bygg (kun utvikling) | MIT |
 | sharp | Bildebehandling (kun utvikling) | Apache-2.0 |
 
-Natural Earth-data er i public domain. Ingen data sendes til tredjeparter når siden
-kjører, og siden bruker ikke informasjonskapsler.
+Natural Earth-data er i public domain. Fonten leveres sammen med siden, ikke fra
+Google Fonts. Ingen data sendes til tredjeparter når siden kjører, og siden bruker
+ikke informasjonskapsler.
 
 ## Tilgjengelighet
 

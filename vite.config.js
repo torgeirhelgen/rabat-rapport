@@ -10,7 +10,8 @@ export default defineConfig(({ mode }) => ({
   plugins: mode === "enkeltfil" ? [viteSingleFile()] : [],
   build: {
     outDir: mode === "enkeltfil" ? "dist-enkeltfil" : "dist",
-    assetsInlineLimit: 0,
+    // Enkeltfil: også fontene legges inn i HTML-filen.
+    assetsInlineLimit: mode === "enkeltfil" ? 100_000_000 : 0,
     // Kartdataene (verdenskart og Marokko-detaljer) utgjør mesteparten av JS-filen.
     chunkSizeWarningLimit: 1500,
   },

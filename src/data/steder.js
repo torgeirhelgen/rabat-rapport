@@ -2,7 +2,7 @@
 // «presisjon» sier hvor sikker plasseringen er:
 //   "anlegg" – anlegget selv (kilde oppgitt)
 //   "by"     – sentrum av byen anlegget ligger i
-//   "omtrentlig" – må bekreftes
+//   "omtrentlig" – må bekreftes (vises med stiplet kant)
 
 export const SENTRE = [
   {
@@ -30,9 +30,9 @@ export const ANLEGG = {
   },
   akademi: {
     navn: "Academie Mohammed VI de Football",
-    koord: [-6.7455, 33.9698], // Omtrentlig: kameraposisjon fra Wikimedia Commons-foto. Må bekreftes.
+    koord: [-6.74293, 33.97312], // Oppgitt av rapportforfatteren
     radiusMeter: 240, // ~18 hektar
-    presisjon: "omtrentlig",
+    presisjon: "anlegg",
   },
 };
 

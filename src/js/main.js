@@ -1,3 +1,5 @@
+import "@fontsource/aref-ruqaa/400.css";
+import "@fontsource/aref-ruqaa/700.css";
 import { marked } from "marked";
 import rapport from "../../content/rapport.md?raw";
 import { Globus } from "./globus.js";
@@ -8,6 +10,15 @@ import { TABELL } from "../data/botola.js";
 
 const redusert = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mobilMQ = matchMedia("(max-width: 959px)");
+
+// Stjernen fra Marokkos flagg: et flettet pentagram.
+const STJERNE = `<svg class="stjerne" viewBox="146 79.5 92 87.6" aria-hidden="true"><g>
+  <path d="M181.25 113.188 146.469 113.219 186.062 141.969 192 137.656 168 120.219 178.969 120.188 181.25 113.188Z"/>
+  <path d="M202.766 113.199 191.988 80.1296 176.88 126.67 182.816 130.984 191.984 102.77 195.403 113.192 202.766 113.199Z"/>
+  <path d="M209.404 133.665 237.524 113.196 188.593 113.209 186.324 120.188 215.99 120.188 207.135 126.661 209.404 133.665Z"/>
+  <path d="M191.99 146.302 220.147 166.721 205.014 120.189 197.676 120.188 206.843 148.402 197.951 141.98 191.99 146.302Z"/>
+  <path d="M174.591 133.647 163.872 166.735 203.451 137.964 201.184 130.984 177.183 148.421 180.543 137.979 174.591 133.647Z"/>
+</g></svg>`;
 
 const INGRESSER = {
   infrastruktur: "Forbundet, staten og fem regionale sentre for spillerutvikling.",
@@ -106,8 +117,7 @@ const beholder = document.getElementById("kapitler");
 const toc = document.getElementById("toc");
 const nav = document.getElementById("nav-kapitler");
 
-kapitler.forEach((k, i) => {
-  const nr = String(i + 1).padStart(2, "0");
+kapitler.forEach((k) => {
   const sek = document.createElement("section");
   sek.className = "kapittel";
   sek.id = k.id;
@@ -115,14 +125,15 @@ kapitler.forEach((k, i) => {
   sek.setAttribute("aria-labelledby", `${k.id}-tittel`);
   const hode = document.createElement("header");
   hode.className = "kapittel-hode";
-  hode.dataset.kart = k.blokker.find((b) => b.dataset.kart)?.dataset.kart || "hero";
-  hode.innerHTML = `<p class="kicker">Kapittel ${nr}</p><h2 id="${k.id}-tittel">${k.tittel}</h2><hr class="gull-strek">`;
+  const forsteKart = k.blokker.find((b) => b.dataset.kart)?.dataset.kart || "hero";
+  hode.dataset.kart = forsteKart;
+  hode.innerHTML = `${STJERNE}<h2 id="${k.id}-tittel">${k.tittel}</h2>`;
   sek.append(hode, ...k.blokker);
   beholder.append(sek);
 
   toc.insertAdjacentHTML(
     "beforeend",
-    `<li><a href="#${k.id}"><span class="toc-nr">${nr}</span><span class="toc-tittel">${k.tittel}</span><span class="toc-ingress">${INGRESSER[k.id] || ""}</span></a></li>`
+    `<li><a href="#${k.id}" data-forhandsvis="${forsteKart}">${STJERNE}<span class="toc-tittel">${k.tittel}</span><span class="toc-ingress">${INGRESSER[k.id] || ""}</span></a></li>`
   );
   nav.insertAdjacentHTML("beforeend", `<li><a href="#${k.id}" data-nav="${k.id}">${k.tittel}</a></li>`);
 });
@@ -145,6 +156,28 @@ function visKart(id, umiddelbar = false) {
 }
 visKart("hero", true);
 mobilMQ.addEventListener("change", () => visKart(aktivVisning, true));
+
+// Innholdsfortegnelsen: å holde over et kapittel viser kapittelets kart.
+let forhandsvisning = null;
+function forhandsvis(id) {
+  clearTimeout(forhandsvisning);
+  forhandsvisning = setTimeout(() => {
+    if (aktivVisning !== "oversikt") return;
+    globus.settVisning(hentVisning(id || "oversikt", mobilMQ.matches));
+  }, id ? 120 : 250);
+}
+toc.addEventListener("pointerover", (e) => {
+  const a = e.target.closest("[data-forhandsvis]");
+  if (a) forhandsvis(a.dataset.forhandsvis);
+});
+toc.addEventListener("pointerleave", () => forhandsvis(null));
+toc.addEventListener("focusin", (e) => {
+  const a = e.target.closest("[data-forhandsvis]");
+  if (a) forhandsvis(a.dataset.forhandsvis);
+});
+toc.addEventListener("focusout", (e) => {
+  if (!toc.contains(e.relatedTarget)) forhandsvis(null);
+});
 
 // Samspill mellom tekst (liste og tabell) og kart.
 function uthevFraTekst(ider) {
@@ -217,10 +250,18 @@ addEventListener(
   () => {
     const maks = document.documentElement.scrollHeight - innerHeight;
     fremdrift.style.transform = `scaleX(${maks > 0 ? scrollY / maks : 0})`;
-    document.body.classList.toggle("har-scrollet", scrollY > innerHeight * 0.5);
+    oppdaterForside();
   },
   { passive: true }
 );
+
+// Den røde forsiden tones ut mens man scroller ned mot innholdsfortegnelsen.
+function oppdaterForside() {
+  const andel = Math.min(1, Math.max(0, 1 - scrollY / (innerHeight * 0.75)));
+  document.documentElement.style.setProperty("--forside", andel.toFixed(3));
+  document.body.classList.toggle("paa-forside", andel > 0.35);
+}
+oppdaterForside();
 
 // ---------- 4. Bilder ----------
 

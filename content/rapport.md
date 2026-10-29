@@ -4,7 +4,7 @@
     kapittel: <id>     starter et nytt kapittel (id brukes i lenker og i bilder.json)
     kart: <id>         kartvisningen for avsnittene som følger (se src/js/kart-visninger.js)
     komponent: <id>    setter inn en interaktiv komponent (sentre-liste, botola-tabell)
-    stil: <navn>       gir neste blokk en egen stil (fasiliteter, stikkord)
+    stil: <navn>       gir neste blokk en egen stil (fasiliteter)
 -->
 
 <!-- kapittel: infrastruktur -->
@@ -56,7 +56,6 @@ LNFP organiserer også nasjonale serier på aldersbestemt for fem aldersgrupper:
 
 På spørsmål om hva han anser som suksesskriterier i Marokkansk fotball svarte generalsekretær Khalid Mghafri:
 
-<!-- stil: stikkord -->
 * patience
 * mindset for change
 * good people
@@ -69,10 +68,8 @@ Som selvstendig akademi utenfor forbundsstrukturen og uten eget A-lag, er Mohamm
 
 Omtrent 130 spillere i alderen 12-19 år bor på anlegget. De går på skole der og har alle sportslige og medisinske fasiliteter. Anlegget har 6 baner kun for akademiet, i tillegg til 3 baner som er åpne «løkkefotballbaner» med fri tilgang og en halv bane under tak.
 
-<!-- kart: akademi-rekruttering -->
 Akademiet tar kun inn marokkanske spillere, men henter gjerne spillere som kan få marokkansk pass fra hele verden. De har spillere som har vokst opp i Europa så langt nord som Nederland i akademiet nå og inntrykket er at disse flytter dit allerede som 12-13 åringer. Spillere som rekrutteres inn blir i akademiet i minst 3 år. Det gir en viss kontinuitet, men de la ikke skjul på at det i stor grad skyldes FIFAs retningslinjer for klubbutviklede spillere, slik at alle som har blitt rekruttert inn til akademiet blir registrert som klubbutviklet der. Samtidig virket det ikke spesielt økonomisk motivert – mulig kong Mohammed VI dekker regninger ved behov.
 
-<!-- kart: akademi -->
 Mesteparten av bemanningen i akademiet virket marokkanske, men Technical Director ser ut som en rolle de rekrutterer fra Europa. Tozé Pereira ble ansatt i den rollen i år og kom fra Braga i Portugal, hans forgjenger var fra Ajax.
 
 I tillegg til de ~130 spillerne som bor på akademiet, organiserer AMF treninger for spillere i alderen 9-12 år på tolv ulike regionale sentre i hele Marokko med tre treninger i uka. Dette blir rekrutteringsgrunnlaget til akademiet. Akademiet bruker også de tre åpne løkkefotballbanene på anlegget sitt til treninger for barn i alderen 5 til 13 år. For disse treningene er det en treningsavgift på ca €300 i året som inkluderer utstyr.

@@ -99,10 +99,6 @@ export class Globus {
       const til = BUER.til[i % BUER.til.length];
       return { fra, til, interp: geoInterpolate(fra, til), lengde: geoDistance(fra, til), fase: i / BUER.fra.length };
     });
-    this.rekruttering = (() => {
-      const fra = [4.9, 52.37], til = ANLEGG.akademi.koord;
-      return { fra, til, interp: geoInterpolate(fra, til), lengde: geoDistance(fra, til), fase: 0 };
-    })();
 
     this.monster = this.lagMonster();
     this.storrelse();
@@ -218,7 +214,7 @@ export class Globus {
       const b = på ? 1 : 0;
       sett[nøkkel] = this.redusert ? b : a + (b - a) * Math.min(1, dt * 4);
     };
-    for (const l of ["buer", "sentre", "klubbyer", "lokalt", "anlegg", "rekruttering"]) mål(this.lagAlfa, l, v.lag.includes(l));
+    for (const l of ["buer", "sentre", "klubbyer", "lokalt", "anlegg"]) mål(this.lagAlfa, l, v.lag.includes(l));
     const uthev = new Set([...v.uthev, ...this.ekstraUthev]);
     const alle = [...SENTRE.map((s) => s.id), ...Object.keys(ANLEGG), ...KLUBBYER.map((k) => k.id)];
     for (const id of alle) mål(this.uthevAlfa, id, uthev.has(id) || this.hover === id);
@@ -339,7 +335,6 @@ export class Globus {
 
     const a = this.lagAlfa;
     if (a.buer > 0.01) this.tegnBuer(P, this.buer, a.buer, 0.1);
-    if (a.rekruttering > 0.01) this.tegnRekruttering(P, a.rekruttering);
     if (a.anlegg > 0.01) this.tegnAnlegg(P, sti, a.anlegg);
     if (a.klubbyer > 0.01) this.tegnKlubbyer(P, a.klubbyer);
     if (a.sentre > 0.01) this.tegnSentre(P, a.sentre);
@@ -524,14 +519,6 @@ export class Globus {
 
   tegnBuer(P, buer, alfa, hoyde) {
     for (const bue of buer) this.tegnBue(P, bue, alfa, hoyde);
-  }
-
-  tegnRekruttering(P, alfa) {
-    const r = this.rekruttering;
-    this.tegnBue(P, r, alfa, 0.12, 5, 2);
-    const fra = P.punkt(r.fra), til = P.punkt(r.til);
-    if (fra.synlig) this.etikett("Nederland", fra.x + 10, fra.y - 8, { alfa, str: 13, vekt: 600 });
-    if (til.synlig) this.etikett("Salé", til.x + 10, til.y + 4, { alfa, str: 13, vekt: 600, farge: this.farger.gull });
   }
 
   tegnAnlegg(P, sti, alfa) {

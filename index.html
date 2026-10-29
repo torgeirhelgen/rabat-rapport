@@ -14,7 +14,13 @@
 
   <header class="topplinje">
     <a class="merke" href="#start" aria-label="Rabat Rapport, til toppen">
-      <svg class="merke-stjerne" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.2 6.8h7.1l-5.8 4.2 2.2 6.8L12 16.1l-5.8 4.2 2.2-6.8-5.8-4.2h7.1z"/></svg>
+      <span class="merke-flagg" aria-hidden="true"><svg class="merke-stjerne" viewBox="146 79.5 92 87.6" aria-hidden="true"><g>
+        <path d="M181.25 113.188 146.469 113.219 186.062 141.969 192 137.656 168 120.219 178.969 120.188 181.25 113.188Z"/>
+        <path d="M202.766 113.199 191.988 80.1296 176.88 126.67 182.816 130.984 191.984 102.77 195.403 113.192 202.766 113.199Z"/>
+        <path d="M209.404 133.665 237.524 113.196 188.593 113.209 186.324 120.188 215.99 120.188 207.135 126.661 209.404 133.665Z"/>
+        <path d="M191.99 146.302 220.147 166.721 205.014 120.189 197.676 120.188 206.843 148.402 197.951 141.98 191.99 146.302Z"/>
+        <path d="M174.591 133.647 163.872 166.735 203.451 137.964 201.184 130.984 177.183 148.421 180.543 137.979 174.591 133.647Z"/>
+      </g></svg></span>
       <span>Rabat Rapport</span>
     </a>
     <nav aria-label="Kapitler">
@@ -24,6 +30,7 @@
     <div class="fremdrift" aria-hidden="true"><span id="fremdrift"></span></div>
   </header>
 
+  <div class="forside-flate" aria-hidden="true"></div>
   <div class="kart" aria-hidden="true">
     <canvas id="globus"></canvas>
     <div class="kart-slipp"></div>
@@ -51,34 +58,41 @@
   </aside>
 
   <main id="innhold">
-    <section class="hero" id="start" data-kart="hero" aria-labelledby="tittel">
-      <div class="hero-innhold">
-        <p class="kicker">Intern rapport</p>
-        <h1 id="tittel">
-          <svg class="tittel-stjerne" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.2 6.8h7.1l-5.8 4.2 2.2 6.8L12 16.1l-5.8 4.2 2.2-6.8-5.8-4.2h7.1z"/></svg>
-          Rabat Rapport
-        </h1>
+    <section class="forside" id="start" data-kart="hero" aria-labelledby="tittel">
+      <div class="forside-innhold">
+        <svg class="flaggstjerne" viewBox="146 79.5 92 87.6" aria-hidden="true"><g>
+        <path d="M181.25 113.188 146.469 113.219 186.062 141.969 192 137.656 168 120.219 178.969 120.188 181.25 113.188Z"/>
+        <path d="M202.766 113.199 191.988 80.1296 176.88 126.67 182.816 130.984 191.984 102.77 195.403 113.192 202.766 113.199Z"/>
+        <path d="M209.404 133.665 237.524 113.196 188.593 113.209 186.324 120.188 215.99 120.188 207.135 126.661 209.404 133.665Z"/>
+        <path d="M191.99 146.302 220.147 166.721 205.014 120.189 197.676 120.188 206.843 148.402 197.951 141.98 191.99 146.302Z"/>
+        <path d="M174.591 133.647 163.872 166.735 203.451 137.964 201.184 130.984 177.183 148.421 180.543 137.979 174.591 133.647Z"/>
+      </g></svg>
+        <h1 id="tittel"><span class="tittel-rabat">Rabat</span> <span class="tittel-rapport">Rapport</span></h1>
         <p class="undertittel">Referanser fra marokkansk fotball</p>
-        <hr class="gull-strek">
-        <nav aria-labelledby="toc-tittel" class="toc-blokk">
-          <h2 id="toc-tittel" class="toc-overskrift">Innhold</h2>
-          <ol id="toc" class="toc"></ol>
-        </nav>
       </div>
-      <a class="scroll-hint" href="#infrastruktur">
-        <span>Les rapporten</span>
+      <div class="arabisk-band" aria-hidden="true" lang="ar" dir="rtl">
+        <div class="arabisk-spor">
+          <span>مراجع من كأس العالم للسيدات تحت 17 سنة، والمنشأة الوطنية لكرة القدم، واتحاد كرة القدم، والدوري الاحترافي، وأكبر أكاديمية في البلاد</span>
+          <span>مراجع من كأس العالم للسيدات تحت 17 سنة، والمنشأة الوطنية لكرة القدم، واتحاد كرة القدم، والدوري الاحترافي، وأكبر أكاديمية في البلاد</span>
+        </div>
+      </div>
+      <a class="scroll-hint" href="#innholdsfortegnelse" aria-label="Til innholdsfortegnelsen">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </a>
     </section>
 
+    <nav class="oversikt" id="innholdsfortegnelse" data-kart="oversikt" aria-labelledby="toc-tittel">
+      <h2 id="toc-tittel" class="oversikt-tittel">Innhold</h2>
+      <ol id="toc" class="toc"></ol>
+    </nav>
+
     <div id="kapitler"></div>
 
     <footer class="kilder" data-kart="akademi">
-      <hr class="gull-strek">
       <h2>Kart og kilder</h2>
       <ul>
         <li>Kartgrunnlag: <a href="https://www.naturalearthdata.com/">Natural Earth</a> (fritt tilgjengelig).</li>
-        <li>Plassering av Mohammed VI Football Complex: Wikidata. Akademiets plassering er omtrentlig og vises med stiplet kant.</li>
+        <li>Plassering av Mohammed VI Football Complex: Wikidata. Plassering av akademiet: oppgitt av rapportforfatteren.</li>
         <li>Regionale sentre er plassert i sentrum av byene de ligger i. Elva Bou Regreg er tegnet forenklet.</li>
         <li>Botola Pro 2025/26: TNT Sports, Global Sports Archive og Wikipedia.</li>
       </ul>
