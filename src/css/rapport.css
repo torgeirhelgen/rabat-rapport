@@ -389,12 +389,6 @@ main > *, .kapittel > * { pointer-events: auto; }
 .botola tr.er-mester td:first-child { color: var(--gold); font-weight: 700; }
 .botola tr.er-nedrykk { color: var(--text-secondary); }
 .botola tr.er-nedrykk:first-of-type, .botola tr:not(.er-nedrykk) + tr.er-nedrykk td, .botola tr:not(.er-nedrykk) + tr.er-nedrykk th { border-top: 1px dashed rgba(247, 241, 232, 0.35); }
-.botola .kilde { margin: 0.9rem 0 0; font-size: 0.8125rem; line-height: 1.45; color: var(--text-tertiary); }
-
-/* Kilder */
-.kilder { padding: 8vh 1.25rem 18vh var(--kol-start); max-width: calc(var(--kol-start) + var(--kol-bredde)); color: var(--text-secondary); font-size: 0.9375rem; }
-.kilder h2 { margin: 1.25rem 0 0.75rem; font-size: 1rem; color: var(--text); }
-.kilder ul { margin: 0; padding-inline-start: 1.1rem; line-height: 1.6; }
 
 /* ---------- Bildepanel (desktop) ---------- */
 

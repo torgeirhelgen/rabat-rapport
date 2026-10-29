@@ -107,8 +107,7 @@ function botolaTabell() {
           </tr>`
         ).join("")}</tbody>
       </table>
-    </div>
-    <p class="kilde">Kilde: TNT Sports, Global Sports Archive og Wikipedia. Kawkab Marrakech og CODM Meknès endte på like mange poeng.</p>`;
+    </div>`;
   return fig;
 }
 
